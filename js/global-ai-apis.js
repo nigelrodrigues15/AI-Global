@@ -3,6 +3,17 @@
  */
 
 $(function() {
+
+    //hide all result divs
+    hide(document.getElementById('anger_div'));
+    hide(document.getElementById('contempt_div'));
+    hide(document.getElementById('disgust_div'));
+    hide(document.getElementById('fear_div'));
+    hide(document.getElementById('happiness_div'));
+    hide(document.getElementById('neutral_div'));
+    hide(document.getElementById('sadness_div'));
+    hide(document.getElementById('surprise_div'));
+
     var params = {
         // Request parameters
     };
@@ -30,30 +41,14 @@ $(function() {
 
     var jsonresults;
 
-    $.ajax({
-               url: "https://westus.api.cognitive.microsoft.com/emotion/v1.0/recognize?" + $.param(params),
-               beforeSend: function(xhrObj){
-                   // Request headers
-                   xhrObj.setRequestHeader("Content-Type","application/json");
-                   xhrObj.setRequestHeader("Ocp-Apim-Subscription-Key","3fab902b4add4555bfd10686842091ee");
-               },
-               type: "POST",
-               // Request body
-               data: '{ "url" : "http://static2.businessinsider.com/image/5087f99369bedd394700000d/obama-press-conference-obamacare-sad.jpg" }',
-           })
-        .done(function(data) {
-            console.log(data);
-            paramupdate(data);
-            appendhtml();
-        })
-        .fail(function(data) {
-            console.log(data);
-        });
+    var instaresults;
 
+    //The following are instagram keys needed to trigger the API functions.
     var token = '5645620360.cdb6ebd.6d138fa6fac04089867a9ceae954de7d',
-        hashtag='party', // hashtag without # symbol
+        hashtag='drinks', // hashtag without # symbol
         num_photos = 4;
 
+    //The following ajax queries the instagram api and return a jsonp with the picture details.
     $.ajax({
                url: 'https://api.instagram.com/v1/tags/' + hashtag + '/media/recent',
                dataType: 'jsonp',
@@ -61,6 +56,12 @@ $(function() {
                data: {access_token: token},
                success: function(data){
                    console.log(data);
+                   //The URL image data must be retrieved from the API call and saved as a text file to use
+                   //with cognitive services. Without this, it will not do the job.
+                   instaresults = '{"url" : "' + data.data[0].images.standard_resolution.url + '" }';
+                   // console.log(instaresults);
+                   instaresultscall();
+
                    // for(x in data.data){
                    //     $('ul').append('<li><img src="'+data.data[x].images.standard_resolution.url+'"></li>');
                    // }
@@ -70,46 +71,283 @@ $(function() {
                }
            });
 
-    function paramupdate(value){
-        jsonresults = value;
+    var urls = [];
+
+    function iterate_insta_data(data){
+        for (var i = 0; i < data.data.length(); i++){
+            instaresults = '{"url" : "' + data.data[i].images.standard_resolution.url + '" }';
+            urls[instaresults] = instaresults;
+        }
     }
 
+    //#############################################
+    // /**
+    //  * Modified from user siongui on GitHub
+    //  * https://siongui.github.io/2012/09/29/javascript-single-callback-for-multiple-asynchronous-xhr-requests/
+    //  *
+    //  * Cross-Browser AJAX request (XMLHttpRequest)
+    //  */
+    // var AjaxRequest = function(url, callback, failCallback) {
+    //     var xmlhttp;
+    //
+    //     if (window.XMLHttpRequest)
+    //         xmlhttp=new XMLHttpRequest();
+    //     else
+    //         xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+    //
+    //     xmlhttp.onreadystatechange = function() {
+    //         if (xmlhttp.readyState == 4) {
+    //             if (xmlhttp.status == 200)
+    //                 callback(xmlhttp.responseText, url);
+    //             else
+    //                 failCallback(url);
+    //         }
+    //     };
+    //
+    //     xmlhttp.open("POST", url, true);
+    //     xmlhttp.send();
+    // };
+    //
+    // /**
+    //  * Issue Multiple AJAX requests to get data, and a single callback is called
+    //  * after all AJAX requests ar completed successfully.
+    //  */
+    // var AjaxRequestsMulti = function(urls, callbackMulti, failCallbackMulti) {
+    //     var isAllCallsCompleted = false;
+    //     var isCallFailed = false;
+    //     var data = [];
+    //
+    //     // Iterates through urls array to send AJAX requests
+    //     for (var i=0; i<urls.length; i++) {
+    //
+    //         // If callback is successful, response text from AJAX reuqest is added to data array.
+    //         var callback = function(responseText, url) {
+    //             if (isCallFailed) return;
+    //
+    //             // Add JSON object to data array.
+    //             data[url] = JSON.parse(responseText);
+    //
+    //             // get size of data
+    //             var size = 0;
+    //             for (var index in data) {
+    //                 if (data.hasOwnProperty(index))
+    //                     size ++;
+    //             }
+    //
+    //             if (size == urls.length)
+    //             // all AJAX requests are completed successfully
+    //                 callbackMulti(data);
+    //         };
+    //
+    //         var failCallback = function(url) {
+    //             isCallFailed = true;
+    //             failCallbackMulti(url);
+    //         };
+    //
+    //         AjaxRequest(urls[i], callback, failCallback);
+    //     }
+    //#############################################
+
+    /**
+     * instaresultscall is used to call a second ajax query that uses the json from instagram and analyzes
+     * the images(s) urls using the cognitive services API.
+     */
+    function instaresultscall(){
+        //The following ajax queries the emotion API and detects faces on the picture passed.
+        $.ajax({
+                   url: "https://westus.api.cognitive.microsoft.com/emotion/v1.0/recognize?" + $.param(params),
+                   beforeSend: function(xhrObj){
+                       // Request headers
+                       xhrObj.setRequestHeader("Content-Type","application/json");
+                       xhrObj.setRequestHeader("Ocp-Apim-Subscription-Key","3fab902b4add4555bfd10686842091ee");
+                   },
+                   type: "POST",
+                   // Request body
+                   // data: '{ "url" : "http://static2.businessinsider.com/image/5087f99369bedd394700000d/obama-press-conference-obamacare-sad.jpg" }',
+                   data: instaresults,
+               })
+            .done(function(data) {
+                console.log(data);
+
+                paramupdate(data);
+                appendhtml();
+            })
+            .fail(function(data) {
+                console.log(data);
+            });
+    }
+
+    /**
+     *
+     * @param value
+     */
+    function paramupdate(value){
+        //here we need to iterate through all the faces totals and save the results
+        //in json results. So total average emotions are displayed.
+        var total;
+
+        var anger = 0;
+        var contempt = 0;
+        var disgust = 0;
+        var fear = 0;
+        var happiness = 0;
+        var neutral = 0;
+        var sadness = 0;
+        var surprise = 0;
+
+        for (var i = 0; i < value.length; i++){
+            anger += parseFloat(value[i].scores.anger);
+            // console.log(anger);
+            contempt += parseFloat(value[i].scores.contempt);
+            disgust += parseFloat(value[i].scores.disgust);
+            fear += parseFloat(value[i].scores.fear);
+            happiness += parseFloat(value[i].scores.happiness);
+            neutral += parseFloat(value[i].scores.neutral);
+            sadness += parseFloat(value[i].scores.sadness);
+            surprise += parseFloat(value[i].scores.surprise);
+        }
+
+        anger = 100 * anger / value.length;
+        contempt = 100 * contempt / value.length;
+        disgust = 100 * disgust / value.length;
+        fear = 100 * fear / value.length;
+        happiness = 100 * happiness / value.length;
+        neutral = 100 * neutral / value.length;
+        sadness = 100 * sadness / value.length;
+        surprise = 100 * surprise / value.length;
+
+
+        // jsonresults = value;
+        jsonresults = {
+            "anger" : anger,
+            "contempt" : contempt,
+            "disgust" : disgust,
+            "fear" : fear,
+            "happiness" : happiness,
+            "neutral" : neutral,
+            "sadness" : sadness,
+            "surprise" : surprise
+        }
+
+    }
+
+    /**
+     *
+     */
     function appendhtml(){
 
-        var anger = jsonresults[0].scores.anger;
-        var contempt = jsonresults[0].scores.contempt;
-        var disgust = jsonresults[0].scores.disgust;
-        var fear = jsonresults[0].scores.fear;
-        var happiness = jsonresults[0].scores.happiness;
-        var neutral = jsonresults[0].scores.neutral;
-        var sadness = jsonresults[0].scores.sadness;
-        var surprise = jsonresults[0].scores.surprise;
+        // var anger = jsonresults[0].scores.anger;
+        // var contempt = jsonresults[0].scores.contempt;
+        // var disgust = jsonresults[0].scores.disgust;
+        // var fear = jsonresults[0].scores.fear;
+        // var happiness = jsonresults[0].scores.happiness;
+        // var neutral = jsonresults[0].scores.neutral;
+        // var sadness = jsonresults[0].scores.sadness;
+        // var surprise = jsonresults[0].scores.surprise;
+        var anger = jsonresults.anger;
+        var contempt = jsonresults.contempt;
+        var disgust = jsonresults.disgust;
+        var fear = jsonresults.fear;
+        var happiness = jsonresults.happiness;
+        var neutral = jsonresults.neutral;
+        var sadness = jsonresults.sadness;
+        var surprise = jsonresults.surprise;
 
-        $('#anger').html("<p>" + anger + "</p>");
-        $('#contempt').html("<p>" + contempt + "</p>");
-        $('#disgust').html("<p>" + disgust + "</p>");
-        $('#fear').html("<p>" + fear + "</p>");
-        $('#happiness').html("<p>" + happiness + "</p>");
-        $('#neutral').html("<p>" + neutral + "</p>");
-        $('#sadness').html("<p>" + sadness + "</p>");
-        $('#surprise').html("<p>" + surprise + "</p>");
+        $('#anger').html("<p>" + anger.toFixed(5) + "</p>");
+        $('#contempt').html("<p>" + contempt.toFixed(5) + "</p>");
+        $('#disgust').html("<p>" + disgust.toFixed(5) + "</p>");
+        $('#fear').html("<p>" + fear.toFixed(5) + "</p>");
+        $('#happiness').html("<p>" + happiness.toFixed(5) + "</p>");
+        $('#neutral').html("<p>" + neutral.toFixed(5) + "</p>");
+        $('#sadness').html("<p>" + sadness.toFixed(5) + "</p>");
+        $('#surprise').html("<p>" + surprise.toFixed(5) + "</p>");
 
-        var highest = Math.max(anger, contempt, disgust, fear, happiness, neutral, sadness, surprise);
+        var highestNum = Math.max(anger, contempt, disgust, fear, happiness, neutral, sadness, surprise);
+        var highest = "";
+
+        switch(highestNum){
+            case anger:
+                highest = " Anger"
+                show(document.getElementById('anger_div'));
+                break;
+            case contempt:
+                highest = " Contempt"
+                show(document.getElementById('contempt_div'));
+                break;
+            case disgust:
+                highest = " Disgust"
+                show(document.getElementById('disgust_div'));
+                break;
+            case fear:
+                highest = " Fear"
+                show(document.getElementById('fears_div'));
+                break;
+            case happiness:
+                highest = " Happiness"
+                show(document.getElementById('happiness_div'));
+                break;
+            case neutral:
+                highest = " Neutral"
+                show(document.getElementById('neutral_div'));
+                break;
+            case sadness:
+                highest = " Sadness"
+                show(document.getElementById('sadness_div'));
+                break;
+            case surprise:
+                highest = " Surprise"
+                show(document.getElementById('surprise_div'));
+                break;
+            default:
+                highest = "Unknown";
+        }
 
         $('#highest').html("<p>Dominant Emotion:" + highest + "</p>");
 
     };
-
-
-
 });
+
+/**
+ *
+ */
 function useHashtag(){
-	var texttest = document.getElementById('hashtag').value;
-	console.log("test");
-	console.log(texttest);
+	var hashtag = document.getElementById('hashtag').value;
+	console.log(hashtag);
 	var div = document.getElementById('showHash');
+	var hide = document.getElementById('results');
+	
+	document.getElementById('results').style.display = "block";
+	
+    div.innerHTML = "";
+	
+	if(hashtag.charAt(0) != "#") {
+		div.innerHTML = "#" + div.innerHTML + hashtag;
+	} else {
+		div.innerHTML = div.innerHTML + hashtag;
+	}
 
-	div.innerHTML = div.innerHTML + texttest;
+}
 
 
+function stopRKey(evt) {
+  var evt = (evt) ? evt : ((event) ? event : null);
+  var node = (evt.target) ? evt.target : ((evt.srcElement) ? evt.srcElement : null);
+  if ((evt.keyCode == 13) && (node.type=="text"))  {return false;}
+  if ((evt.keyCode == 32) && (node.type=="text"))  {return false;}
+}
+
+document.onkeypress = stopRKey;
+
+function hide (elements) {
+  elements = elements.length ? elements : [elements];
+  for (var index = 0; index < elements.length; index++) {
+    elements[index].style.display = 'none';
+  }
+}
+
+function show (elements){
+  elements = elements.length ? elements : [elements];
+  for (var index = 0; index < elements.length; index++) {
+    elements[index].style.display = 'block';
+  }
 }

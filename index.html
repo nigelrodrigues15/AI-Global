@@ -30,6 +30,16 @@
     </nav>
 
 
+    <div style="block" class="introduction">
+        <h3>Hashtag Emotion Analyzer</h3>
+        <p>
+            Sure, it might have seemed like a <b>#party</b>. But were the people at <b>#Coachella</b> really having as much fun as
+             you think they were?
+        </p>
+        <p>Find out if the <b>#GoodTimes</b> were just <b>#FakeNews</b>, with our <font color="800080"><b>Hashtag Emotion Analyzer</b></font>! Enter a hashtag below!
+        </p>
+    </div>
+
     <div class="enter_hashtag">
         <p>Enter the hashtag you would like to search: </p>
 		<form name="search" id="search_form">
@@ -42,18 +52,14 @@
     </div>
 
 
-    <div style="block" class="introduction">
-        <p>Exciting Introduction</p>
-    </div>
+ <div class="results" id="results">
 
- <div class="results">
-
-     <p>Results:</p>
+     <h2>Results:</h2>
 
      <table>
          <tr>
              <th>EMOTION</th>
-             <th>SCORE</th>
+             <th>SCORE (%)</th>
          </tr>
          <tr>
              <td>ANGER</td>
@@ -89,17 +95,55 @@
          </tr>
      </table>
 
-     <p id="highest"> Dominant Emotion:  </p>
+     <div id="dominant_emotion">
+
+         <h3 id="highest"></h3>
+
+     </div>
+
+     <!-- Results-dependant divs, just for funs -->
+
+     <div id="anger_div">
+        <p>Wow - this hashtag is angry! </p>
+	 	<img src="images/angry.jpg" style="width:350px;height:250px;">
+     </div>
+     <div id="contempt_div">
+         <p>This hashtag doesn't like what it sees... hmph!</p>
+	 	 <img src="images/contempt.jpg" style="width:350px;height:250px;">
+     </div>
+     <div id="disgust_div">
+         <p>Yuck. This hashtag seems to be pretty disgusted!</p>
+	 	 <img src="images/disgust.gif" style="width:350px;height:250px;">
+     </div>
+     <div id="fear_div">
+         <p>Spooky! This hashtag is primariy associated with fear!</p>
+	 	 <img src="images/fear.gif" style="width:350px;height:250px;">
+     </div>
+     <div id="happiness_div">
+         <p>How lovely! Individuals in these photos are primarily happy. </p>
+	 	 <img src="images/happy.gif" style="width:350px;height:250px;">
+     </div>
+     <div id="neutral_div">
+         <p>Well, that's kind of boring. Most people in these photos are feeling pretty neutral.</p>
+	 	 <img src="images/neutral.jpg" style="width:350px;height:250px;">
+     </div>
+     <div id="sadness_div">
+         <p>Oh no, these aren't happy photos at all! What a sad hashtag. </p>
+	 	 <img src="images/sad.jpg" style="width:350px;height:250px;">
+     </div>
+     <div id="surprise_div">
+         <p>Shocking! This hashtag is mostly associated with surprise. </p>
+	 	<img src="images/surprise.gif" style="width:350px;height:250px;">
+     </div>
 
  </div>
 
- <div class="container">
+ <div class="container" id="footer">
      <hr>
         <footer>
-            <p>Global AI Hackathon 2017</p>
+            <p><i>Team </i><b>R U Fake</b> - <i>Global AI Hackathon 2017</i></p>
         </footer>
     </div>
-
 
  <script src="js/global-ai-apis.js"> </script>
 </body>

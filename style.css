@@ -10,13 +10,32 @@
 
 .introduction p {
     display: block;
+    margin-left: 30px;
+    margin-right: 30px;
+    padding: 5px;
+    text-align: center;
+}
+
+.introduction h3 {
+    display: block;
     padding: 10px;
     text-align: center;
 }
 
+.enter_hashtag {
+    display: block;
+    padding:20px;
+}
 
 .results {
-    padding:10px;
+    display: none;
+    padding:20px;
+	margin-bottom:30px;
+}
+
+.results .dominant_emotion{
+    display: block;
+    padding:20px;
 }
 
 table {
@@ -32,14 +51,15 @@ td, th {
 }
 
 tr:nth-child(even) {
-    background-color: #dddddd;
+    background-color: #ffccff;
 }
 
 h1 {
     display: block;
     padding: 20px;
     text-align: left;
-    color: pink;
+    color: #ffccff;
 }
+
 
 
