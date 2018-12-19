@@ -1,2 +1,2 @@
 # AI-Global
-Global AI Hackathon
+Global AI Hackathon in Vancouver
